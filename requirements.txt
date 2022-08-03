@@ -1,0 +1,11 @@
+# requirement for development, testing.
+
+wheel
+black
+isort
+pytest
+pytest-cov
+setuptools_scm
+tox
+
+-e .

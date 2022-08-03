@@ -1,5 +1,4 @@
 .coverage
-.github
 .python-version
 .tox
 .venv

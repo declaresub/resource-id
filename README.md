@@ -11,7 +11,8 @@ In particular, it can be used with [FastAPI](https://fastapi.tiangolo.com) as a 
 
 ## Requirements
 
-Resource-id requires Python >= 3.7. For python <= 3.9, typing_extensions is required.
+Resource-id requires Python >= 3.7. For python <= 3.9, typing_extensions is required. For Python 3.7, 
+importlib-metadata is required.
 
 ## Installation
 

@@ -1,4 +1,3 @@
-from pydoc import resolve
 from typing import Union
 
 import pytest

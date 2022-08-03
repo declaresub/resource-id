@@ -2,6 +2,7 @@
 
 wheel
 black
+build
 isort
 pytest
 pytest-cov

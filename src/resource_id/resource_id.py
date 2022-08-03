@@ -5,9 +5,9 @@ from typing import Any, Union, Dict
 
 # we test version to help pylance.
 if sys.version_info >= (3, 8):
-    from typing import Protocol, runtime_checkable # pragma: no cover
+    from typing import Protocol, runtime_checkable, TypeAlias # pragma: no cover
 else:
-    from typing_extensions import Protocol, runtime_checkable # pragma: no cover
+    from typing_extensions import Protocol, runtime_checkable, TypeAlias # pragma: no cover
     
 from uuid import UUID
 
@@ -23,7 +23,7 @@ class Base62Encodable(Protocol):
         ...
 
 
-ResourceIdValue = Union[str, Base62Encodable]
+ResourceIdValue: TypeAlias = Union[str, Base62Encodable]
 
 
 def b62encode(value: Base62Encodable):

@@ -8,5 +8,6 @@ pytest
 pytest-cov
 setuptools_scm
 tox
+twine
 
 -e .

@@ -32,7 +32,7 @@ def b62encode(value: Base62Encodable):
     if 0 > value:
         raise ValueError("value must convert to a non-negative integer.")
     x = value
-    b62_repr = ""
+    b62_repr: str = ""
     while x:
         x, b62_repr = (
             x // 62,

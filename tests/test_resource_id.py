@@ -1,10 +1,13 @@
 from typing import Union
 from uuid import UUID
 
+import pydantic
 import pytest
 
 from resource_id import ResourceId
 from resource_id.resource_id import Base62Encodable
+
+pydantic_major_version = int(pydantic.VERSION.split(".")[0])
 
 
 @pytest.mark.parametrize("arg", [1, "test", UUID(int=1728)])
@@ -75,3 +78,25 @@ def test___modify_schema__():
     field_schema = {}
     ResourceId.__modify_schema__(field_schema)
     assert field_schema["title"] == ResourceId.__name__
+
+
+class Foo(pydantic.BaseModel):
+    id: ResourceId
+
+
+def test_foo_init():
+    foo = Foo(id=ResourceId("test"))
+    assert foo.id == ResourceId("test")
+
+
+def test_pydantic_json_schema():
+    # it is not so easy to test __get_pydantic_json_schema__ directly without digging around in the innards of pydantic 2.
+    # so we just check the schema generated for Foo to see that its id item has the expected JSON schema for ResourceId.
+    foo = Foo(id=ResourceId("test"))
+    schema = foo.schema() if pydantic_major_version < 2 else foo.model_json_schema()  # type: ignore
+    assert "properties" in schema
+    assert schema["properties"]["id"] == {
+        "description": ResourceId.schema_description,
+        "title": ResourceId.__name__,
+        "type": "string",
+    }

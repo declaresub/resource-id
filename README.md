@@ -11,8 +11,9 @@ In particular, it can be used with [FastAPI](https://fastapi.tiangolo.com) as a 
 
 ## Requirements
 
-Resource-id requires Python >= 3.7. For python <= 3.9, typing_extensions is required. For Python 3.7, 
-importlib-metadata is required.
+Resource-id requires Python >= 3.8. For python <= 3.9, typing_extensions is required.
+Version 1.1.0 adds support for pydantic 2, which in turn requires that pydantic be added 
+as a dependency.
 
 ## Installation
 
@@ -30,6 +31,8 @@ Create a ResourceId:
     id1 = ResourceId('deadbeef')
     id2 = ResourceId(UUID(int=101))
 
+In fact a ResourceId can be created from any object that implements __int__,
+
 
 Create a URL path using a ResourceId:
 
@@ -42,7 +45,7 @@ Define a FastAPI request handler with a ResourceId:
         ...
 
 Here, FastAPI will validate the value of the path variable foo_id with Pydantic.  If validation fails, 
-FastAPI (unfortunately) returns 422 Unprocessable Entity.
+FastAPI returns 422 Unprocessable Entity.
 
     
 Convert a ResourceId to a UUID:

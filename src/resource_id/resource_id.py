@@ -1,15 +1,9 @@
 """ResourceId implements base62-encoded identifiers, suitable for URLs and URIs."""
 
-import sys
-from typing import Any, Union, Dict
-
-# we test version to help pylance.
-if sys.version_info >= (3, 8):
-    from typing import Protocol, runtime_checkable, TypeAlias # pragma: no cover
-else:
-    from typing_extensions import Protocol, runtime_checkable, TypeAlias # pragma: no cover
-    
+from typing import Any, Dict, Protocol, Type, Union, runtime_checkable
 from uuid import UUID
+
+from typing_extensions import TypeAlias
 
 __all__ = ["ResourceId"]
 
@@ -86,21 +80,23 @@ class ResourceId:
     # validation methods for use by Pydantic
     @classmethod
     def __get_validators__(cls):
+        # for pydantic 1
         yield cls.validate
-
-    @classmethod
-    def validate(cls, value: ResourceIdValue):
-        return cls(cls._to_int(value))
 
     @classmethod
     def __modify_schema__(cls, field_schema: Dict[str, Any]):
         # __modify_schema__ should mutate the dict it receives in place,
         # the returned value will be ignored
+        # __get_pydantic_json_schema__ replaces __modify_schema__ in pydantic 2.
         field_schema.update(
             title=cls.__name__,
             description=cls.schema_description,
             type="string",
         )
+
+    @classmethod
+    def validate(cls, value: ResourceIdValue):
+        return cls(value)
 
     @staticmethod
     def _to_int(value: ResourceIdValue):
@@ -114,3 +110,48 @@ class ResourceId:
             return int_value
         else:
             raise TypeError("value must be str or Base62Encodable.")
+
+
+try:
+    from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
+    from pydantic.json_schema import JsonSchemaValue
+    from pydantic_core import CoreSchema, core_schema
+
+    def __get_pydantic_core_schema__(
+        # for pydantic 2
+        cls: Type[ResourceId],
+        _: Any,
+        __: GetCoreSchemaHandler,
+    ) -> CoreSchema:
+        return core_schema.general_plain_validator_function(
+            lambda v, _: cls.validate(v)
+        )
+
+    setattr(
+        ResourceId,
+        "__get_pydantic_core_schema__",
+        classmethod(__get_pydantic_core_schema__),
+    )
+
+    def __get_pydantic_json_schema__(
+        cls: Type[ResourceId], core_schema: CoreSchema, handler: GetJsonSchemaHandler
+    ) -> JsonSchemaValue:
+        # for pydantic 2
+        json_schema = {
+            "title": cls.__name__,
+            "description": cls.schema_description,
+            "type": "string",
+        }
+        json_schema = handler.resolve_ref_schema(json_schema)
+
+        return json_schema
+
+    setattr(
+        ResourceId,
+        "__get_pydantic_json_schema__",
+        classmethod(__get_pydantic_json_schema__),
+    )
+
+
+except ImportError:  # pragma: no cover
+    pass

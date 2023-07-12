@@ -3,7 +3,7 @@
 The resource-id package provides a ResourceId class implementing base62-encoded identifiers, suitable
 for URLs, URIs, and perhaps something else.
 
-ResourceId is written to work with [Pydantic](https://pydantic-docs.helpmanual.io), but does not depend on Pydantic.
+ResourceId is written to work with [Pydantic](https://pydantic-docs.helpmanual.io).
 In particular, it can be used with [FastAPI](https://fastapi.tiangolo.com) as a path parameter.
 
 ![tox](https://github.com/declaresub/resource-id/actions/workflows/tox.yml/badge.svg)

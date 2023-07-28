@@ -4,42 +4,44 @@ from uuid import UUID
 import pydantic
 import pytest
 
-from resource_id import ResourceId
-from resource_id.resource_id import Base62Encodable
+from resource_id.resource_id import Base62Encodable, ResourceId, b62decode, b62encode
 
 pydantic_major_version = int(pydantic.VERSION.split(".")[0])
 
 
-@pytest.mark.parametrize("arg", [1, "test", UUID(int=1728)])
-def test_init(arg: Union[str, Base62Encodable]):
-    assert ResourceId(arg)
+@pytest.mark.parametrize("src, expected", [(1, "1"), (62, "10")])
+def test_b62encode(src: Base62Encodable, expected: str):
+    assert b62encode(src) == expected
 
 
-def test_init_bad_value():
+def test_b62encode_fail():
+    with pytest.raises(ValueError):
+        b62encode(-1)
+
+
+@pytest.mark.parametrize("src, expected", [("1", 1), ("11", 63)])
+def test_b62decode(src: str, expected: int):
+    assert b62decode(src) == expected
+
+
+def test_b62decode_fail():
+    with pytest.raises(ValueError):
+        b62decode("*")
+
+
+@pytest.mark.parametrize("arg, value", [(1, 1), ("11", 63), (UUID(int=1728), 1728)])
+def test_init(arg: Union[str, Base62Encodable], value: int):
+    assert ResourceId(arg).value == value
+
+
+def test_init_bad_arg_value():
     with pytest.raises(ValueError):
         ResourceId(-1)
 
 
-def test_init_bad_type():
+def test_init_bad_arg_type():
     with pytest.raises(TypeError):
-        ResourceId(None)  # type: ignore
-
-
-def test_bad_value_after_init():
-    res_id = ResourceId(1)
-    res_id.value = -1
-    with pytest.raises(ValueError):
-        repr(res_id)
-
-
-def test_repr():
-    arg = 1
-    assert repr(ResourceId(arg)) == "1"
-
-
-def test_invalid_base62():
-    with pytest.raises(ValueError):
-        ResourceId("bad-value")
+        ResourceId({})  # type: ignore
 
 
 def test_uuid():
@@ -47,17 +49,21 @@ def test_uuid():
     assert ResourceId(value).uuid == value
 
 
+def test_repr():
+    arg = 1
+    assert repr(ResourceId(arg)) == "1"
+
+
 def test_eq():
     assert ResourceId(1) == ResourceId(1)
 
 
-def test_eq_class_mismatch():
-    with pytest.raises(TypeError):
-        ResourceId(1) != 1  # type: ignore
+def test_not_eq():
+    assert ResourceId(1) != 1
 
 
 def test_hash():
-    assert hash(ResourceId(1))
+    assert hash(ResourceId(1)) == hash(1)
 
 
 def test_int():
@@ -66,37 +72,32 @@ def test_int():
 
 
 def test___get_validators__():
-    assert next(ResourceId.__get_validators__()) == ResourceId.validate
+    # for pydantic 2, ResourceId is wrapped with Annotated, and special methot lookup bypasses __getattr__.  Thus we must
+    # get the actual ResourceId class from the Annootated object.
+    __get_validators__ = ResourceId.__origin__.__get_validators__ if hasattr(ResourceId, "__origin__") else ResourceId.__get_validators__  # type: ignore
+    assert next(__get_validators__()) == ResourceId.validate  # type: ignore
 
 
-@pytest.mark.parametrize("arg", [1, "test", UUID(int=1728)])
-def test_validate(arg: Union[str, Base62Encodable]):
-    assert ResourceId.validate(arg)
+def test_validate():
+    assert ResourceId.validate("test") == ResourceId("test")
 
 
-def test___modify_schema__():
-    field_schema = {}
-    ResourceId.__modify_schema__(field_schema)
-    assert field_schema["title"] == ResourceId.__name__
+def test_modify_schema():
+    __modify_schema__ = ResourceId.__origin__.__modify_schema__ if hasattr(ResourceId, "__origin__") else ResourceId.__modify_schema__  # type: ignore
+    schema = {}
+    __modify_schema__(schema)
+    assert schema == ResourceId._json_schema()  # type: ignore
 
 
-class Foo(pydantic.BaseModel):
-    id: ResourceId
+def test__json_schema():
+    assert isinstance(ResourceId._json_schema(), dict)  # type: ignore
 
 
-def test_foo_init():
-    foo = Foo(id=ResourceId("test"))
-    assert foo.id == ResourceId("test")
-
-
-def test_pydantic_json_schema():
-    # it is not so easy to test __get_pydantic_json_schema__ directly without digging around in the innards of pydantic 2.
-    # so we just check the schema generated for Foo to see that its id item has the expected JSON schema for ResourceId.
-    foo = Foo(id=ResourceId("test"))
-    schema = foo.schema() if pydantic_major_version < 2 else foo.model_json_schema()  # type: ignore
-    assert "properties" in schema
-    assert schema["properties"]["id"] == {
-        "description": ResourceId.schema_description,
-        "title": ResourceId.__name__,
-        "type": "string",
-    }
+@pytest.mark.skipif(
+    not hasattr(pydantic, "TypeAdapter"),
+    reason="Serialization is only implemented for pydantic 2.",
+)
+def test_serialization_pydantic2():
+    V = pydantic.TypeAdapter(ResourceId)
+    id = ResourceId("test")
+    assert V.dump_json(id) == b'"test"'

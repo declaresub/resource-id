@@ -3,11 +3,9 @@ try:
 except ImportError:  # pragma: no cover
     from importlib_metadata import PackageNotFoundError, metadata  # type: ignore
 
-
 from .resource_id import ResourceId
 
-
-__all__ = ['ResourceId']
+__all__ = ["ResourceId"]
 
 
 try:

@@ -72,25 +72,26 @@ def test_int():
 
 
 def test___get_validators__():
-    # for pydantic 2, ResourceId is wrapped with Annotated, and special methot lookup bypasses __getattr__.  Thus we must
-    # get the actual ResourceId class from the Annootated object.
-    __get_validators__ = ResourceId.__origin__.__get_validators__ if hasattr(ResourceId, "__origin__") else ResourceId.__get_validators__  # type: ignore
-    assert next(__get_validators__()) == ResourceId.validate  # type: ignore
+    if pydantic_major_version == 1:
+        assert next(ResourceId.__get_validators__()) == ResourceId.validate  # type: ignore
 
 
 def test_validate():
-    assert ResourceId.validate("test") == ResourceId("test")
+    if pydantic_major_version == 1:
+        assert ResourceId.validate("test") == ResourceId("test")
 
 
 def test_modify_schema():
-    __modify_schema__ = ResourceId.__origin__.__modify_schema__ if hasattr(ResourceId, "__origin__") else ResourceId.__modify_schema__  # type: ignore
-    schema = {}
-    __modify_schema__(schema)
-    assert schema == ResourceId._json_schema()  # type: ignore
+    if pydantic_major_version == 1:
+        __modify_schema__ = ResourceId.__origin__.__modify_schema__ if hasattr(ResourceId, "__origin__") else ResourceId.__modify_schema__  # type: ignore
+        schema = {}
+        __modify_schema__(schema)
+        assert schema == ResourceId._json_schema()  # type: ignore
 
 
 def test__json_schema():
-    assert isinstance(ResourceId._json_schema(), dict)  # type: ignore
+    if pydantic_major_version == 1:
+        assert isinstance(ResourceId._json_schema(), dict)  # type: ignore
 
 
 @pytest.mark.skipif(

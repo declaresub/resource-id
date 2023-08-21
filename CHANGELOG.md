@@ -1,5 +1,10 @@
 # Changelog
 
+
+## 1.2,2
+* Replace Pydantic annotation with implementation of Pydantic class methods in ResourceId class.
+FastAPI does not appear to be able to handle Pydantic-annotated types.
+
 ## 1.2.0
 * ResourceId.__eq__ now returns NotImplemented in response to a class mismatch.
 * Pydantic 2 support is now implemented via annotation of the ResourceId type.

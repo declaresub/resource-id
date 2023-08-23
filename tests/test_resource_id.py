@@ -81,7 +81,8 @@ def test_validate():
         assert ResourceId.validate("test") == ResourceId("test")
     else:
         t = pydantic.TypeAdapter(ResourceId)
-        assert t.validate_json('"test"') == ResourceId('test')
+        assert t.validate_json('"test"') == ResourceId("test")
+
 
 def test_modify_schema():
     if pydantic_major_version == 1:
@@ -106,11 +107,13 @@ def test_serialization_pydantic2():
     assert V.dump_json(id) == b'"test"'
 
 
-
-@pytest.mark.skipif(pydantic_major_version != 2, reason='model_json_schema is defined only for pydantic 2.')
+@pytest.mark.skipif(
+    pydantic_major_version != 2,
+    reason="model_json_schema is defined only for pydantic 2.",
+)
 def test_model_json_schema():
     class Model(pydantic.BaseModel):
         id: ResourceId
 
-    m = Model(id=ResourceId('test'))
-    assert m.model_json_schema(mode='serialization')
+    m = Model(id=ResourceId("test"))
+    assert m.model_json_schema(mode="serialization")

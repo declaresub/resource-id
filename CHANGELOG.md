@@ -1,7 +1,11 @@
 # Changelog
 
 
-## 1.2,2
+## 1.2.2
+* Rewrite pydantic 2 methods in ResourceId in response to changes in Pydantic 2.0.3 that broke
+JSON schema generation by ResourceId. This caused problems for FastAPI openapi documentation generation.
+
+## 1.2,1
 * Replace Pydantic annotation with implementation of Pydantic class methods in ResourceId class.
 FastAPI does not appear to be able to handle Pydantic-annotated types.
 

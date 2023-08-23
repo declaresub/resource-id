@@ -9,12 +9,12 @@ except ImportError:  # pragma: no cover
     from typing_extensions import TypeAlias
 
 
-try:
+try: # pragma: no cover
     from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
     from pydantic_core import CoreSchema, core_schema
     from pydantic.json_schema import JsonSchemaValue
     pydantic2 = True
-except ImportError:
+except ImportError: # pragma: no cover
     pydantic2 = False
 
 __all__ = ["ResourceId"]
@@ -97,48 +97,31 @@ class ResourceId:
             return int_value
         else:
             raise TypeError("value must be str or Base62Encodable.")
-
+        
+    @classmethod
+    def _json_schema(cls):
+        return {
+            "title": cls.__name__,
+            "description": "An opaque identifier.",
+            "type": "str",
+            'format': 'resource-id',
+        }
+        
     if pydantic2:
         # this is a little too dynamic for pyright, so we disable a few type warnings.
+        
         @classmethod
         def __get_pydantic_core_schema__( # type: ignore
             cls, source_type: Any, handler: GetCoreSchemaHandler  # type: ignore
         ) -> CoreSchema:  # type: ignore
-            _schema = core_schema.chain_schema(
-                [
-                    core_schema.str_schema(),
-                    core_schema.no_info_plain_validator_function(cls),
-                ]
-            )
-
-            return core_schema.json_or_python_schema(
-                json_schema=_schema,
-                python_schema=core_schema.union_schema(
-                    [
-                        # check if it's an instance first before doing any further work
-                        core_schema.is_instance_schema(cls),
-                        _schema,
-                    ]
-                ),
-                serialization=core_schema.plain_serializer_function_ser_schema(
-                    lambda x: str(x)
-                ),
-            )
+            return core_schema.no_info_plain_validator_function(cls, serialization=core_schema.plain_serializer_function_ser_schema(str, return_schema=core_schema.str_schema()))  # type: ignore
 
         @classmethod
         def __get_pydantic_json_schema__(
             cls, _core_schema: core_schema.CoreSchema, handler: GetJsonSchemaHandler # type: ignore
         ) -> JsonSchemaValue:
-            return handler(_core_schema) # type: ignore
+            return cls._json_schema()
     else:
-        @classmethod
-        def _json_schema(cls):
-            return {
-                "title": cls.__name__,
-                "description": "An opaque resource id.",
-                "type": "str",
-            }
-
         @classmethod
         def __get_validators__(cls):
             # for pydantic 1

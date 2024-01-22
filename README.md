@@ -58,9 +58,9 @@ Convert a ResourceId to a UUID:
 I have some projects that use PostgreSQL and asyncpg.  It is quite simple to add conversion between PostgreSQL UUID datatype and ResourceId.
 
 ```
-def get_uuid(value: ResourceId) -> UUID:
+def get_uuid(value: ResourceId) -> str:
     assert isinstance(value, ResourceId)
-    return value.uuid
+    return str(value.uuid)
 
 
 def get_resource_id(value: str) -> ResourceId:

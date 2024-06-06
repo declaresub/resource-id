@@ -104,7 +104,7 @@ class ResourceId:
         return {
             "title": cls.__name__,
             "description": "An opaque identifier.",
-            "type": "str",
+            "type": "string",
             "format": "resource-id",
         }
 

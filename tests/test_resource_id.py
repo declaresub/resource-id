@@ -1,6 +1,7 @@
 from typing import Union
 from uuid import UUID
 
+import jsonschema
 import pydantic
 import pytest
 
@@ -117,3 +118,6 @@ def test_model_json_schema():
 
     m = Model(id=ResourceId("test"))
     assert m.model_json_schema(mode="serialization")
+
+def test_json_schema():
+    assert jsonschema.validate('test', ResourceId._json_schema()) is None # pyright: ignore[reportPrivateUsage]

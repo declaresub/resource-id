@@ -9,5 +9,6 @@ pytest-cov
 setuptools_scm
 tox
 twine
+jsonschema
 
 -e .

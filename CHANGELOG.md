@@ -1,5 +1,7 @@
 # Changelog
 
+## 1.2.3
+* ResourceId json schema type is now correctly set to 'string'.
 
 ## 1.2.2
 * Rewrite pydantic 2 methods in ResourceId in response to changes in Pydantic 2.0.3 that broke

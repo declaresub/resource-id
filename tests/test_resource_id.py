@@ -49,6 +49,13 @@ def test_uuid():
     value = UUID(int=123)
     assert ResourceId(value).uuid == value
 
+def test_uuid_str():
+    value = UUID(int=666)
+    assert ResourceId(str(value)).uuid == value
+
+def test_bad_str():
+    with pytest.raises(ValueError):
+        ResourceId('oops!')
 
 def test_repr():
     arg = 1

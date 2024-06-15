@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.0
+
+* ResourceId now parses string inputs as follows: first it attempts to parse input
+as a base62-encoded int; if that fails, it attempts to parse as a UUID formatted string.
+This turns out to be quite useful when retrieving data as JSON from a database.
+
 ## 1.2.3
 * ResourceId json schema type is now correctly set to 'string'.
 

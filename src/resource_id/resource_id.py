@@ -90,7 +90,20 @@ class ResourceId:
     def _to_int(value: ResourceIdValue):
         # to be replaced with a match statement someday.
         if isinstance(value, str):
-            return b62decode(value)
+            # I presume that the standard input is a base-62 encoded integer.
+            # Thus we try this case first to take advantage of zero-cost exception
+            # handling in python 3.11+.  Only that fails do we attempt to parse value
+            # as a UUID string.  
+            # The presumption means that a hex string of length 32 will be parsed as a base-62
+            # encoded int, not a UUID.  This preserves the earlier behavior of _to_int.
+            try:
+               return b62decode(value)
+            except ValueError as exc:
+                try:
+                    return UUID(value).int
+                except ValueError:
+                    raise exc
+            
         elif isinstance(value, Base62Encodable):  # type: ignore
             int_value = int(value)
             if int_value < 0:

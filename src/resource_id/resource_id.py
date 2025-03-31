@@ -93,17 +93,17 @@ class ResourceId:
             # I presume that the standard input is a base-62 encoded integer.
             # Thus we try this case first to take advantage of zero-cost exception
             # handling in python 3.11+.  Only that fails do we attempt to parse value
-            # as a UUID string.  
+            # as a UUID string.
             # The presumption means that a hex string of length 32 will be parsed as a base-62
             # encoded int, not a UUID.  This preserves the earlier behavior of _to_int.
             try:
-               return b62decode(value)
+                return b62decode(value)
             except ValueError as exc:
                 try:
                     return UUID(value).int
                 except ValueError:
                     raise exc
-            
+
         elif isinstance(value, Base62Encodable):  # type: ignore
             int_value = int(value)
             if int_value < 0:
@@ -126,13 +126,22 @@ class ResourceId:
 
         @classmethod
         def __get_pydantic_core_schema__(  # type: ignore
-            cls, source_type: Any, handler: GetCoreSchemaHandler  # type: ignore
+            cls,
+            source_type: Any,
+            handler: GetCoreSchemaHandler,  # type: ignore
         ) -> CoreSchema:  # type: ignore
-            return core_schema.no_info_plain_validator_function(cls, serialization=core_schema.plain_serializer_function_ser_schema(str, return_schema=core_schema.str_schema()))  # type: ignore
+            return core_schema.no_info_plain_validator_function(
+                cls,
+                serialization=core_schema.plain_serializer_function_ser_schema(
+                    str, return_schema=core_schema.str_schema()
+                ),
+            )  # type: ignore
 
         @classmethod
         def __get_pydantic_json_schema__(
-            cls, _core_schema: core_schema.CoreSchema, handler: GetJsonSchemaHandler  # type: ignore
+            cls,
+            _core_schema: core_schema.CoreSchema,
+            handler: GetJsonSchemaHandler,  # type: ignore
         ) -> JsonSchemaValue:
             return cls._json_schema()
 

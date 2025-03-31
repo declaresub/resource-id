@@ -80,6 +80,36 @@ class ResourceId:
         else:
             return NotImplemented
 
+    def __ne__(self, other: Any) -> bool:
+        if isinstance(other, self.__class__):
+            return self.value != other.value
+        else:
+            return NotImplemented
+
+    def __lt__(self, other: Any) -> bool:
+        if isinstance(other, self.__class__):
+            return self.value < other.value
+        else:
+            return NotImplemented
+
+    def __le__(self, other: Any) -> bool:
+        if isinstance(other, self.__class__):
+            return self.value <= other.value
+        else:
+            return NotImplemented
+
+    def __gt__(self, other: Any) -> bool:
+        if isinstance(other, self.__class__):
+            return self.value > other.value
+        else:
+            return NotImplemented
+
+    def __ge__(self, other: Any) -> bool:
+        if isinstance(other, self.__class__):
+            return self.value >= other.value
+        else:
+            return NotImplemented
+
     def __hash__(self):
         return hash(self.value)
 
@@ -146,7 +176,6 @@ class ResourceId:
             return cls._json_schema()
 
     else:
-
         @classmethod
         def __get_validators__(cls):
             # for pydantic 1

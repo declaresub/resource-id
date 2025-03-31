@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Any, Union
 from uuid import UUID
 
 import jsonschema
@@ -66,8 +66,34 @@ def test_eq():
     assert ResourceId(1) == ResourceId(1)
 
 
-def test_not_eq():
-    assert ResourceId(1) != 1
+def test_ne():
+    assert ResourceId(1) != ResourceId(2)
+
+def test_lt():
+    assert ResourceId(1) < ResourceId(2)
+
+def test_le():
+    assert ResourceId(2) <= ResourceId(2)
+
+def test_gt():
+    assert ResourceId(2) > ResourceId(1)
+
+def test_ge():
+    assert ResourceId(2) >= ResourceId(2)
+
+
+
+@pytest.mark.parametrize('result',
+                         [
+ResourceId(1).__eq__(1),
+ResourceId(1).__ne__(1),
+ResourceId(1).__lt__(1),
+ResourceId(1).__le__(1),
+ResourceId(1).__gt__(1),
+ResourceId(1).__ge__(1),
+])
+def test_cmp_not_implemented(result: Any):
+    assert result is NotImplemented
 
 
 def test_hash():
@@ -95,7 +121,7 @@ def test_validate():
 def test_modify_schema():
     if pydantic_major_version == 1:
         __modify_schema__ = ResourceId.__origin__.__modify_schema__ if hasattr(ResourceId, "__origin__") else ResourceId.__modify_schema__  # type: ignore
-        schema = {}
+        schema: dict[str, Any] = {}
         __modify_schema__(schema)
         assert schema == ResourceId._json_schema()  # type: ignore
 

@@ -7,8 +7,6 @@ import pytest
 
 from resource_id.resource_id import Base62Encodable, ResourceId, b62decode, b62encode
 
-pydantic_major_version = int(pydantic.VERSION.split(".")[0])
-
 
 @pytest.mark.parametrize("src, expected", [(1, "1"), (62, "10")])
 def test_b62encode(src: Base62Encodable, expected: str):
@@ -49,13 +47,16 @@ def test_uuid():
     value = UUID(int=123)
     assert ResourceId(value).uuid == value
 
+
 def test_uuid_str():
     value = UUID(int=666)
     assert ResourceId(str(value)).uuid == value
 
+
 def test_bad_str():
     with pytest.raises(ValueError):
-        ResourceId('oops!')
+        ResourceId("oops!")
+
 
 def test_repr():
     arg = 1
@@ -69,29 +70,34 @@ def test_eq():
 def test_ne():
     assert ResourceId(1) != ResourceId(2)
 
+
 def test_lt():
     assert ResourceId(1) < ResourceId(2)
+
 
 def test_le():
     assert ResourceId(2) <= ResourceId(2)
 
+
 def test_gt():
     assert ResourceId(2) > ResourceId(1)
+
 
 def test_ge():
     assert ResourceId(2) >= ResourceId(2)
 
 
-
-@pytest.mark.parametrize('result',
-                         [
-ResourceId(1).__eq__(1),
-ResourceId(1).__ne__(1),
-ResourceId(1).__lt__(1),
-ResourceId(1).__le__(1),
-ResourceId(1).__gt__(1),
-ResourceId(1).__ge__(1),
-])
+@pytest.mark.parametrize(
+    "result",
+    [
+        ResourceId(1).__eq__(1),
+        ResourceId(1).__ne__(1),
+        ResourceId(1).__lt__(1),
+        ResourceId(1).__le__(1),
+        ResourceId(1).__gt__(1),
+        ResourceId(1).__ge__(1),
+    ],
+)
 def test_cmp_not_implemented(result: Any):
     assert result is NotImplemented
 
@@ -105,46 +111,17 @@ def test_int():
     assert int(ResourceId(value)) == value
 
 
-def test___get_validators__():
-    if pydantic_major_version == 1:
-        assert next(ResourceId.__get_validators__()) == ResourceId.validate  # type: ignore
-
-
 def test_validate():
-    if pydantic_major_version == 1:
-        assert ResourceId.validate("test") == ResourceId("test")
-    else:
-        t = pydantic.TypeAdapter(ResourceId)
-        assert t.validate_json('"test"') == ResourceId("test")
+    t = pydantic.TypeAdapter(ResourceId)
+    assert t.validate_json('"test"') == ResourceId("test")
 
 
-def test_modify_schema():
-    if pydantic_major_version == 1:
-        __modify_schema__ = ResourceId.__origin__.__modify_schema__ if hasattr(ResourceId, "__origin__") else ResourceId.__modify_schema__  # type: ignore
-        schema: dict[str, Any] = {}
-        __modify_schema__(schema)
-        assert schema == ResourceId._json_schema()  # type: ignore
-
-
-def test__json_schema():
-    if pydantic_major_version == 1:
-        assert isinstance(ResourceId._json_schema(), dict)  # type: ignore
-
-
-@pytest.mark.skipif(
-    not hasattr(pydantic, "TypeAdapter"),
-    reason="Serialization is only implemented for pydantic 2.",
-)
-def test_serialization_pydantic2():
+def test_serialization():
     V = pydantic.TypeAdapter(ResourceId)
     id = ResourceId("test")
     assert V.dump_json(id) == b'"test"'
 
 
-@pytest.mark.skipif(
-    pydantic_major_version != 2,
-    reason="model_json_schema is defined only for pydantic 2.",
-)
 def test_model_json_schema():
     class Model(pydantic.BaseModel):
         id: ResourceId
@@ -152,5 +129,6 @@ def test_model_json_schema():
     m = Model(id=ResourceId("test"))
     assert m.model_json_schema(mode="serialization")
 
+
 def test_json_schema():
-    assert jsonschema.validate('test', ResourceId._json_schema()) is None # pyright: ignore[reportPrivateUsage]
+    assert jsonschema.validate("test", ResourceId._json_schema()) is None  # pyright: ignore[reportPrivateUsage]

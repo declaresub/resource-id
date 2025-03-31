@@ -2,10 +2,49 @@
 requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools_scm]
+[project]
+name = "resource-id"
+dynamic = ["version"]
+authors = [
+  {name = "Charles Yeomans", email = "charles@declaresub.com"},
+]
+description = "A base62-encoded identifier for use in URLs.  Supports Pydantic validation."
+readme = "README.md"
+license = "MIT"
+keywords = ["identifier", "url", "base62", "uuid", "fastapi"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Framework :: FastAPI",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Typing :: Typed",
+]
+dependencies = [
+  "pydantic>=2, <3",
+  "typing_extensions>=4.6.0; python_version<'3.10'",
+]
 
-[tool.black]
+[project.urls]
+Homepage = "https://github.com/declaresub/resource-id"
+
+
+[tool.setuptools_scm]
 
 
 [tool.isort]
 profile = "black"
+
+
+[tool.ruff.lint]
+
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
+mark-parentheses = false

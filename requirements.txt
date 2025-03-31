@@ -1,9 +1,8 @@
-# requirement for development, testing.
+# requirements for development, testing.
 
 wheel
-black
+ruff
 build
-isort
 pytest
 pytest-cov
 setuptools_scm

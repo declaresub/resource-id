@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+requires = ["setuptools >= 77.0.3", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -34,12 +34,18 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/declaresub/resource-id"
 
+[tool.setuptools]
+# ...
+# By default, include-package-data is true in pyproject.toml,
+# so you do NOT have to specify this line.
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+
 
 [tool.setuptools_scm]
-
-
-[tool.isort]
-profile = "black"
 
 
 [tool.ruff.lint]

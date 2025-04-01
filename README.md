@@ -11,9 +11,9 @@ In particular, it can be used with [FastAPI](https://fastapi.tiangolo.com) as a 
 
 ## Requirements
 
-Resource-id requires Python >= 3.8. For python <= 3.9, typing_extensions is required.
-Version 1.1.0 adds support for pydantic 2, which in turn requires that pydantic be added 
-as a dependency.
+Resource-id requires Python >= 3.9. For python == 3.9, typing_extensions is required.
+As of version 1.4.0, resource-id requires pydantic 2.
+
 
 ## Installation
 
@@ -75,8 +75,6 @@ async def init_connection(conn: asyncpg.Connection):
 ```
 
 
-
-
 ## Testing
 
 The requirements.txt file is for development and testing. If you have any interest in either,
@@ -100,5 +98,4 @@ Or
 
 ## Package Verification
 
-I sign resource-id releases on pypi with my GPG key (3A27290FD243BD83BC3F5BC886C057F96A41A77B), which you can retrieve from https://keys.openpgp.org.  
-You can verify a package by downloading it and its GPG signature file from pypi, then running gpg --verify.
+As of version 1.4.0, releases use trusted publishing.

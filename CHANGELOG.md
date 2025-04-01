@@ -1,7 +1,12 @@
 # Changelog
 
-## 1.3.0
+## 1.4.0
+* resource-id now requires pydantic 2; pydantic 1 support has been dropped.
+* ResourceId objects are now comparable.
+* Packages are now published to pypi using trusted publishing.
+* Drop support for python 3.8; add python 3.13.
 
+## 1.3.0
 * ResourceId now parses string inputs as follows: first it attempts to parse input
 as a base62-encoded int; if that fails, it attempts to parse as a UUID formatted string.
 This turns out to be quite useful when retrieving data as JSON from a database.

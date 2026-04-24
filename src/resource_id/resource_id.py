@@ -1,7 +1,7 @@
 """ResourceId implements base62-encoded identifiers, suitable for URLs and URIs."""
 
 from typing import Any, Protocol, Union, runtime_checkable
-from uuid import UUID
+from uuid import UUID, uuid4
 
 try:
     from typing import TypeAlias
@@ -61,8 +61,11 @@ def b62decode(value: str):
 
 class ResourceId:
     __slots__ = ["value"]
+    uuid_gen = staticmethod(uuid4)
 
-    def __init__(self, value: ResourceIdValue):
+    def __init__(self, value: ResourceIdValue | None = None):
+        if value is None:
+            value = self.uuid_gen()
         self.value = self._to_int(value)
 
     @property

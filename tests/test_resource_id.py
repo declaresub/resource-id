@@ -34,6 +34,11 @@ def test_init(arg: Union[str, Base62Encodable], value: int):
     assert ResourceId(arg).value == value
 
 
+def test_init_default():
+    rid = ResourceId()
+    assert rid.value >= 0
+
+
 def test_init_bad_arg_value():
     with pytest.raises(ValueError):
         ResourceId(-1)

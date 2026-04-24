@@ -47,14 +47,16 @@ def b62encode(value: Base62Encodable):
 def b62decode(value: str):
     """Decode a base62-encoded str.  Returns int.  Raises ValueError if value is invalid."""
 
-    sgn, value = (-1, value[1:]) if value[0] == "-" else (1, value)
+    if value == '':
+        raise ValueError("invalid literal for b62decode: ''")
+
     x = 0
     for digit in value:
         try:
             x = x * 62 + DECODE_MAP[digit]
         except KeyError as exc:
             raise ValueError(f"Invalid base62 value '{value}'.") from exc
-    return sgn * x
+    return x
 
 
 class ResourceId:
@@ -68,6 +70,9 @@ class ResourceId:
         return UUID(int=self.value)
 
     def __repr__(self) -> str:
+        return f'{self.__class__.__name__}({b62encode(self.value)})'
+    
+    def __str__(self) -> str:
         return b62encode(self.value)
 
     def __eq__(self, other: Any) -> bool:

@@ -23,9 +23,10 @@ def test_b62decode(src: str, expected: int):
     assert b62decode(src) == expected
 
 
-def test_b62decode_fail():
+@pytest.mark.parametrize("src", ["*", "", "-1"])
+def test_b62decode_fail(src: str):
     with pytest.raises(ValueError):
-        b62decode("*")
+        b62decode(src)
 
 
 @pytest.mark.parametrize("arg, value", [(1, 1), ("11", 63), (UUID(int=1728), 1728)])
@@ -60,7 +61,12 @@ def test_bad_str():
 
 def test_repr():
     arg = 1
-    assert repr(ResourceId(arg)) == "1"
+    assert repr(ResourceId(arg)) == "ResourceId(1)"
+
+
+def test_str():
+    arg = 1
+    assert str(ResourceId(arg)) == "1"
 
 
 def test_eq():

@@ -91,10 +91,6 @@ Run unit tests:
 
     pytest --cov=src --cov-report term-missing tests
 
-Or
-
-    tox
-
 
 ## Package Verification
 

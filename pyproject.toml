@@ -26,10 +26,20 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Typing :: Typed",
 ]
+requires-python = ">= 3.10"
 dependencies = [
   "pydantic>=2",
-  "typing_extensions>=4.6.0; python_version<'3.10'",
 ]
+
+[dependency-groups]
+dev = [
+    'pytest==9.0.2',
+    'pytest-cov==7.0.0',
+    'ruff==0.15.2',
+    'hypothesis>=6.0',
+    "jsonschema>=4.26.0",
+]
+
 
 [project.urls]
 Homepage = "https://github.com/declaresub/resource-id"

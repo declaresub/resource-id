@@ -11,7 +11,7 @@ In particular, it can be used with [FastAPI](https://fastapi.tiangolo.com) as a 
 
 ## Requirements
 
-Resource-id requires Python >= 3.9. For python == 3.9, typing_extensions is required.
+Resource-id requires Python >= 3.10.
 As of version 1.4.0, resource-id requires pydantic 2.
 
 

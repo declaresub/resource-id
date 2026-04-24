@@ -99,3 +99,4 @@ Or
 ## Package Verification
 
 As of version 1.4.0, releases use trusted publishing.
+As of version 1.5.0, commits are now signed using gitsign.

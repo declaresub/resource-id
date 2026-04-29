@@ -77,19 +77,10 @@ async def init_connection(conn: asyncpg.Connection):
 
 ## Testing
 
-The requirements.txt file is for development and testing. If you have any interest in either,
-create a virtual environment and install this package.  The following may work.
+This project uses [uv](https://docs.astral.sh/uv/) for development.  To set up and run tests:
 
-    python -m venv /path/to/virtual-environment
-    cd /path/to/virtual-environment
-    source bin/activate
-    pushd /path/to/repository
-    pip install -r requirements.txt
-
-
-Run unit tests:
-
-    pytest --cov=src --cov-report term-missing tests
+    uv sync --all-extras --dev
+    uv run pytest tests
 
 
 ## Package Verification

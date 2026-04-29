@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.5.0
+* Drop support for Python 3.9; require Python >= 3.10.
+* `ResourceId()` with no arguments now generates a new identifier via `uuid4`.
+* Add class attribute `uuid_gen` to allow overriding the UUID generator.
+* `__repr__` now returns `ResourceId(...)` instead of the bare base62 string. **This is a breaking change** for code that relied on `repr()` for serialization.
+* Add `__str__` method that returns the base62 string (preserves `str()` and f-string behavior).
+* `b62decode` now raises `ValueError` on empty string input (previously raised `IndexError`).
+* `b62decode` no longer accepts negative values.
+* Commits are now signed using gitsign (sigstore).
+
 ## 1.4.0
 * resource-id now requires pydantic 2; pydantic 1 support has been dropped.
 * ResourceId objects are now comparable.

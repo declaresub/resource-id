@@ -1,4 +1,4 @@
-name: cynque-api-server-tests
+name: resource-id-tests
 
 on:
   push:

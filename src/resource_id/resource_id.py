@@ -1,13 +1,7 @@
 """ResourceId implements base62-encoded identifiers, suitable for URLs and URIs."""
 
-from typing import Any, Union
+from typing import Any, TypeAlias, Union
 from uuid import UUID, uuid4
-
-try:
-    from typing import TypeAlias
-except ImportError:  # pragma: no cover
-    from typing_extensions import TypeAlias
-
 
 from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
 from pydantic.json_schema import JsonSchemaValue
@@ -132,37 +126,37 @@ class ResourceId:
         # value is typed `object`, not ResourceIdValue: __init__ enforces the
         # accepted types at type-check time, but this validator must also defend
         # against untyped callers (pydantic, dynamic code) at runtime.
-        # to be replaced with a match statement someday.
-        if isinstance(value, str):
-            # Base62 is the canonical form, but our encoding of any in-range id
-            # is at most _MAX_BASE62_ID_LEN chars; a longer string can only be a
-            # UUID (36-char dashed or 32-char dashless hex).  Parse those as a
-            # UUID first so e.g. uuid.hex round-trips instead of silently
-            # mis-decoding as a base62 value.  No string this short is ever a
-            # valid UUID, so shorter input takes the base62 path directly.
-            if len(value) > _MAX_BASE62_ID_LEN:
-                try:
-                    return UUID(value).int
-                except ValueError:
-                    pass
-            return b62decode(value)
-
-        elif isinstance(value, ResourceId):
-            # idempotent/copy construction; pydantic re-validates by calling
-            # ResourceId(value) even when value is already a ResourceId.
-            return value.value
-        elif isinstance(value, UUID):
-            return value.int
-        elif isinstance(value, int):
-            # bool is a subclass of int, so it lands here and converts losslessly.
-            # float/Decimal/Fraction are deliberately excluded: their __int__
-            # truncates the fractional part, the silent error class behind the
-            # Ariane 5 failure.  ResourceIdValue rejects them at type-check time;
-            # this branch rejects them at runtime via the final TypeError.
-            # __init__ enforces the value range (non-negative, < 2**128).
-            return value
-        else:
-            raise TypeError("value must be a str, int, or UUID.")
+        match value:
+            case str():
+                # Base62 is the canonical form, but our encoding of any in-range
+                # id is at most _MAX_BASE62_ID_LEN chars; a longer string can
+                # only be a UUID (36-char dashed or 32-char dashless hex).
+                # Parse those as a UUID first so e.g. uuid.hex round-trips
+                # instead of silently mis-decoding as a base62 value.  No string
+                # this short is ever a valid UUID, so shorter input takes the
+                # base62 path directly.
+                if len(value) > _MAX_BASE62_ID_LEN:
+                    try:
+                        return UUID(value).int
+                    except ValueError:
+                        pass
+                return b62decode(value)
+            case ResourceId():
+                # idempotent/copy construction; pydantic re-validates by calling
+                # ResourceId(value) even when value is already a ResourceId.
+                return value.value
+            case UUID():
+                return value.int
+            case int():
+                # bool is a subclass of int, so it lands here and converts
+                # losslessly.  float/Decimal/Fraction are deliberately excluded:
+                # their __int__ truncates the fractional part, the silent error
+                # class behind the Ariane 5 failure.  ResourceIdValue rejects
+                # them at type-check time; this rejects them at runtime via the
+                # default case.  __init__ enforces the value range.
+                return value
+            case _:
+                raise TypeError("value must be a str, int, or UUID.")
 
     @classmethod
     def _json_schema(cls):

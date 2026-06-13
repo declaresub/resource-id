@@ -1,7 +1,4 @@
-try:
-    from importlib.metadata import PackageNotFoundError, metadata  # type: ignore
-except ImportError:  # pragma: no cover
-    from importlib_metadata import PackageNotFoundError, metadata  # type: ignore
+from importlib.metadata import PackageNotFoundError, metadata
 
 from .resource_id import ResourceId
 

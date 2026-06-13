@@ -84,6 +84,19 @@ def test_uuid_str():
     assert ResourceId(str(value)).uuid == value
 
 
+@pytest.mark.parametrize("value", [UUID(int=666), UUID(int=(1 << 128) - 1)])
+def test_uuid_hex_str(value: UUID):
+    # A 32-char dashless hex string must parse as the UUID it is, not as a
+    # base62-encoded int (which would silently yield a different value).
+    assert ResourceId(value.hex).uuid == value
+
+
+def test_long_base62_str_with_leading_zeros():
+    # A string longer than a UUID's hex form is not a valid UUID, so it falls
+    # back to base62 decoding; leading zeros are insignificant.
+    assert ResourceId("0" * 33 + "1").value == 1
+
+
 def test_bad_str():
     with pytest.raises(ValueError):
         ResourceId("oops!")

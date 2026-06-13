@@ -39,6 +39,11 @@ def b62encode(value: Union[int, UUID]):
     return b62_repr if b62_repr else "0"
 
 
+# The base62 encoding of any in-range id (value < 2**UUID_BITS) is at most this
+# many characters; a longer string can only be a UUID, not a base62 id.
+_MAX_BASE62_ID_LEN = len(b62encode((1 << UUID_BITS) - 1))
+
+
 def b62decode(value: str):
     """Decode a base62-encoded str.  Returns int.  Raises ValueError if value is invalid."""
 
@@ -129,19 +134,18 @@ class ResourceId:
         # against untyped callers (pydantic, dynamic code) at runtime.
         # to be replaced with a match statement someday.
         if isinstance(value, str):
-            # I presume that the standard input is a base-62 encoded integer.
-            # Thus we try this case first to take advantage of zero-cost exception
-            # handling in python 3.11+.  Only that fails do we attempt to parse value
-            # as a UUID string.
-            # The presumption means that a hex string of length 32 will be parsed as a base-62
-            # encoded int, not a UUID.  This preserves the earlier behavior of _to_int.
-            try:
-                return b62decode(value)
-            except ValueError as exc:
+            # Base62 is the canonical form, but our encoding of any in-range id
+            # is at most _MAX_BASE62_ID_LEN chars; a longer string can only be a
+            # UUID (36-char dashed or 32-char dashless hex).  Parse those as a
+            # UUID first so e.g. uuid.hex round-trips instead of silently
+            # mis-decoding as a base62 value.  No string this short is ever a
+            # valid UUID, so shorter input takes the base62 path directly.
+            if len(value) > _MAX_BASE62_ID_LEN:
                 try:
                     return UUID(value).int
                 except ValueError:
-                    raise exc
+                    pass
+            return b62decode(value)
 
         elif isinstance(value, ResourceId):
             # idempotent/copy construction; pydantic re-validates by calling

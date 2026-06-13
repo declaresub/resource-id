@@ -32,9 +32,9 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    'pytest==9.0.2',
-    'pytest-cov==7.0.0',
-    'ruff==0.15.2',
+    'pytest==9.1.0',
+    'pytest-cov==7.1.0',
+    'ruff==0.15.17',
     'hypothesis>=6.0',
     "jsonschema>=4.26.0",
 ]

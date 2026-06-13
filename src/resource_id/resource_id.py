@@ -18,6 +18,7 @@ __all__ = ["ResourceId"]
 
 ALPHABET = tuple("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 DECODE_MAP = {x: idx for idx, x in enumerate(ALPHABET)}
+UUID_BITS = 128
 
 
 ResourceIdValue: TypeAlias = Union[str, int, UUID, "ResourceId"]
@@ -60,7 +61,14 @@ class ResourceId:
     def __init__(self, value: ResourceIdValue | None = None):
         if value is None:
             value = self.uuid_gen()
-        self.value = self._to_int(value)
+        int_value = self._to_int(value)
+        # A ResourceId must fit in a UUID, so .uuid is always valid: reject
+        # out-of-range values at construction rather than deferring the failure.
+        if int_value < 0:
+            raise ValueError("value must be non-negative.")
+        if int_value >> UUID_BITS:
+            raise ValueError(f"value must fit in a UUID (< 2**{UUID_BITS}).")
+        self.value = int_value
 
     @property
     def uuid(self) -> UUID:
@@ -147,8 +155,7 @@ class ResourceId:
             # truncates the fractional part, the silent error class behind the
             # Ariane 5 failure.  ResourceIdValue rejects them at type-check time;
             # this branch rejects them at runtime via the final TypeError.
-            if value < 0:
-                raise ValueError("value must be non-negative.")
+            # __init__ enforces the value range (non-negative, < 2**128).
             return value
         else:
             raise TypeError("value must be a str, int, or UUID.")

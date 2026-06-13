@@ -51,6 +51,16 @@ def test_init_bad_arg_value():
         ResourceId(-1)
 
 
+def test_init_rejects_out_of_uuid_range():
+    with pytest.raises(ValueError):
+        ResourceId(1 << 128)
+
+
+def test_max_uuid_value_round_trips():
+    value = (1 << 128) - 1
+    assert ResourceId(value).uuid == UUID(int=value)
+
+
 def test_init_bad_arg_type():
     with pytest.raises(TypeError):
         ResourceId({})  # type: ignore

@@ -30,6 +30,9 @@ dependencies = [
   "pydantic>=2",
 ]
 
+[project.optional-dependencies]
+litestar = ["litestar>=2"]
+
 [dependency-groups]
 dev = [
     'pytest==9.1.0',

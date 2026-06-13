@@ -1,3 +1,5 @@
+from decimal import Decimal
+from fractions import Fraction
 from typing import Any, Union
 from uuid import UUID
 
@@ -5,11 +7,11 @@ import jsonschema
 import pydantic
 import pytest
 
-from resource_id.resource_id import Base62Encodable, ResourceId, b62decode, b62encode
+from resource_id.resource_id import ResourceId, b62decode, b62encode
 
 
 @pytest.mark.parametrize("src, expected", [(1, "1"), (62, "10")])
-def test_b62encode(src: Base62Encodable, expected: str):
+def test_b62encode(src: int, expected: str):
     assert b62encode(src) == expected
 
 
@@ -30,13 +32,18 @@ def test_b62decode_fail(src: str):
 
 
 @pytest.mark.parametrize("arg, value", [(1, 1), ("11", 63), (UUID(int=1728), 1728)])
-def test_init(arg: Union[str, Base62Encodable], value: int):
+def test_init(arg: Union[str, int, UUID], value: int):
     assert ResourceId(arg).value == value
 
 
 def test_init_default():
     rid = ResourceId()
     assert rid.value >= 0
+
+
+def test_init_from_resource_id():
+    rid = ResourceId("test")
+    assert ResourceId(rid) == rid
 
 
 def test_init_bad_arg_value():
@@ -47,6 +54,14 @@ def test_init_bad_arg_value():
 def test_init_bad_arg_type():
     with pytest.raises(TypeError):
         ResourceId({})  # type: ignore
+
+
+@pytest.mark.parametrize("bad", [3.99, 3.0, Decimal("3.5"), Fraction(7, 2)])
+def test_init_rejects_truncating_types(bad: Any):
+    # float/Decimal/Fraction implement __int__ but truncate; they must raise
+    # rather than silently lose the fractional part.
+    with pytest.raises(TypeError):
+        ResourceId(bad)
 
 
 def test_uuid():

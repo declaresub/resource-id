@@ -1,0 +1,39 @@
+name: Dependency vulnerability audit
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron: "17 5 * * 1"  # weekly, to catch newly-disclosed vulns in pinned deps
+
+permissions: {}
+
+jobs:
+  osv-scan:
+    name: OSV scan of uv.lock
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      # Pinned version + checksum, rather than a third-party action, to keep the
+      # Actions allowlist tight.
+      - name: Install osv-scanner
+        env:
+          OSV_VERSION: "2.3.8"
+          OSV_SHA256: "bc98e15319ed0d515e3f9235287ba53cdc5535d576d24fd573978ecfe9ab92dc"
+        run: |
+          set -euo pipefail
+          curl -fsSL -o osv-scanner \
+            "https://github.com/google/osv-scanner/releases/download/v${OSV_VERSION}/osv-scanner_linux_amd64"
+          echo "${OSV_SHA256}  osv-scanner" | sha256sum -c -
+          chmod +x osv-scanner
+
+      - name: Scan uv.lock
+        run: ./osv-scanner scan --lockfile uv.lock

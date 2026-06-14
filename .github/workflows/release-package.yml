@@ -34,6 +34,25 @@ jobs:
       with:
         name: python-package-distributions
         path: dist/
+    # SBOM is generated into its own directory (not dist/) so it is never
+    # uploaded to PyPI, only attached to the GitHub release.
+    - name: Install uv
+      uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
+      with:
+        enable-cache: false  # no cache in the release path (cache-poisoning)
+    - name: Generate CycloneDX SBOM
+      run: |
+        mkdir -p sbom
+        uv export --no-dev --all-extras --no-hashes --no-emit-project \
+          --format requirements-txt -o sbom-requirements.txt
+        uvx --from cyclonedx-bom cyclonedx-py requirements sbom-requirements.txt \
+          --output-format JSON > sbom/resource-id.cdx.json
+        rm sbom-requirements.txt
+    - name: Store the SBOM
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: sbom
+        path: sbom/
 
   publish-to-testpypi:
     name: Publish resource-id to TestPyPI
@@ -103,6 +122,11 @@ jobs:
       with:
         name: python-package-distributions
         path: dist/
+    - name: Download the SBOM
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      with:
+        name: sbom
+        path: sbom/
     - name: Sign the dists with Sigstore
       uses: sigstore/gh-action-sigstore-python@5b79a39c381910c090341a2c9b0bf022c8b387e1 # v3.4.0
       with:
@@ -117,13 +141,13 @@ jobs:
         "$GITHUB_REF_NAME"
         --repo "$GITHUB_REPOSITORY"
         --notes ""
-    - name: Upload artifact signatures to GitHub Release
+    - name: Upload artifacts to GitHub Release
       env:
         GITHUB_TOKEN: ${{ github.token }}
       # Upload to GitHub Release using the `gh` CLI.
-      # `dist/` contains the built packages, and the
-      # sigstore-produced signatures and certificates.
+      # `dist/` contains the built packages and the sigstore-produced
+      # signatures and certificates; `sbom/` contains the CycloneDX SBOM.
       run: >-
         gh release upload
-        "$GITHUB_REF_NAME" dist/**
+        "$GITHUB_REF_NAME" dist/** sbom/resource-id.cdx.json
         --repo "$GITHUB_REPOSITORY"

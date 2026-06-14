@@ -30,5 +30,27 @@ Releases are built and published from GitHub Actions with:
   default) workflows.
 - **Sigstore signing** and **PEP 740 attestations** for verifiable build
   provenance.
+- **CycloneDX SBOM** attached to each GitHub release (`resource-id.cdx.json`).
+- **Dependency scanning** — `uv.lock` is scanned for known vulnerabilities
+  (OSV) in CI, and Dependabot tracks dependency and GitHub Actions updates.
 
-The published distributions can be verified against their attestations on PyPI.
+## Verifying a release
+
+Each release on PyPI carries PEP 740 attestations. With a recent pip you can
+require them at install time:
+
+```
+pip install resource-id --require-hashes  # plus a hashed requirements file
+```
+
+The build provenance attestation (which repository and workflow produced the
+distribution) can be verified with the GitHub CLI against the GitHub release
+assets:
+
+```
+gh attestation verify <downloaded-file> --repo declaresub/resource-id
+```
+
+Each GitHub release also includes Sigstore `.sigstore` bundles for the wheel and
+sdist, and a CycloneDX SBOM (`resource-id.cdx.json`) enumerating the dependency
+tree of that release.

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.6.0
+* Add optional **litestar** integration: `pip install resource-id[litestar]` registers `ResourceId` as a `{id:resourceid}` path-parameter type and provides `ResourceIdSchemaPlugin` (correct OpenAPI schema for `ResourceId` fields) and `ResourceIdPathParameter`.
+* `ResourceId` now accepts only `str`, `int`, `uuid.UUID`, or another `ResourceId`. Inputs such as `float`, `Decimal`, and `Fraction` are rejected with `TypeError` instead of being silently truncated. **This is a breaking change** for code relying on the previous `__int__`-based acceptance.
+* `ResourceId` values are constrained to the UUID range (`0 <= value < 2**128`), validated at construction; out-of-range values now raise `ValueError`. **This is a breaking change**: previously oversized values were accepted and failed only later when `.uuid` was accessed.
+* A 32-character dashless UUID hex string (e.g. `uuid.hex`) now parses as that UUID instead of as a base62 integer. **This is a breaking change** for code relying on the previous base62 interpretation.
+* Releases now include PEP 740 attestations and a CycloneDX SBOM; commit signing moved from gitsign to GPG.
+
 ## 1.5.0
 * Drop support for Python 3.9; require Python >= 3.10.
 * `ResourceId()` with no arguments now generates a new identifier via `uuid4`.

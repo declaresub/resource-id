@@ -1,4 +1,8 @@
 name: Build Package
+# Manual dry-run of the release build path: exercises the same wheel/sdist build
+# and SBOM generation as release-package.yml, on the real runner, without
+# publishing. (The OIDC publish, Sigstore, and attestation steps cannot be run
+# outside a tagged release.)
 on: workflow_dispatch
 
 permissions: {}
@@ -29,3 +33,22 @@ jobs:
       with:
         name: python-package-distributions
         path: dist/
+    # Mirror the SBOM generation in release-package.yml so this dry-run catches
+    # any breakage in that path before a real release.
+    - name: Install uv
+      uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+      with:
+        enable-cache: false
+    - name: Generate CycloneDX SBOM
+      run: |
+        mkdir -p sbom
+        uv export --no-dev --all-extras --no-hashes --no-emit-project \
+          --format requirements-txt -o sbom-requirements.txt
+        uvx --from cyclonedx-bom cyclonedx-py requirements sbom-requirements.txt \
+          --output-format JSON > sbom/resource-id.cdx.json
+        rm sbom-requirements.txt
+    - name: Store the SBOM
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: sbom
+        path: sbom/

@@ -31,6 +31,13 @@ uv run ruff check src tests
 uv build
 ```
 
+**Audit the GitHub Actions allowlist** (resolves every workflow action's
+transitive `uses:` graph and checks it against the repo's allowed-actions
+policy; run after adding or bumping an action):
+```
+python scripts/resolve_action_uses.py
+```
+
 ## Architecture
 
 This is a single-class Python library. All logic lives in [src/resource_id/resource_id.py](src/resource_id/resource_id.py); the package `__init__.py` re-exports `ResourceId`.

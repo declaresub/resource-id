@@ -35,9 +35,9 @@ litestar = ["litestar>=2"]
 
 [dependency-groups]
 dev = [
-    'pytest==9.1.0',
+    'pytest==9.1.1',
     'pytest-cov==7.1.0',
-    'ruff==0.15.17',
+    'ruff==0.15.19',
     'hypothesis>=6.0',
     "jsonschema>=4.26.0",
 ]

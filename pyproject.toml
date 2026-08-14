@@ -61,6 +61,11 @@ where = ["src"]
 
 
 [tool.ruff.lint]
+# Pin the rule set explicitly. Ruff's *default* selection is not a stable
+# contract across releases -- 0.16 replaced it wholesale (59 rules -> 413, and
+# E402 dropped), which broke CI on a routine dependabot bump. These are the
+# rules ruff selected by default through 0.15.
+select = ["E4", "E7", "E9", "F"]
 
 
 [tool.ruff.lint.flake8-pytest-style]
